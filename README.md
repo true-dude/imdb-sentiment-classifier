@@ -428,7 +428,11 @@ uv pip install onnx onnxruntime onnxscript
 2. Выполни экспорт (статическая длина = `data.max_length`, можно переопределить):
 
 ```bash
-uv run python export_onnx.py paths.checkpoint_path=checkpoints/textcnn_imdb.pt paths.tokenizer_path=artifacts/tokenizer.json \paths.onnx_path=artifacts/textcnn.onnx data.max_length=128
+uv run python export_onnx.py \
+  paths.checkpoint_path=checkpoints/textcnn_imdb.pt \
+  paths.tokenizer_path=artifacts/tokenizer.json \
+  paths.onnx_path=artifacts/textcnn.onnx \
+  data.max_length=128
 ```
 
 Скрипт проверит модель через `onnx.checker` и сделает пробный прогон в `onnxruntime`. 3) (Опционально) сохранить в DVC:
@@ -457,6 +461,90 @@ dvc add artifacts/textcnn.trt
 dvc push
 ```
 
+## 10. Triton Inference Server (ONNX, CPU)
+
+> Для учебных целей можно поднять Triton в Docker на CPU. На macOS (Apple Silicon) будет медленно через эмуляцию `linux/amd64`. Для продакшн/GPU лучше использовать Linux c NVIDIA.
+
+1) Подготовь модельный репозиторий (ONNX уже должен быть собран):
+```bash
+mkdir -p model-repo/textcnn/1
+cp artifacts/textcnn.onnx model-repo/textcnn/1/model.onnx
+# config.pbtxt уже лежит в model-repo/textcnn/config.pbtxt
 ```
 
+2) Запусти Triton (Docker, CPU, уже добавлен в docker-compose):
+```bash
+# если нужен образ под amd64 на Mac:
+# DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up triton
+docker compose up triton
 ```
+Порты: 8000 (HTTP), 8001 (gRPC), 8002 (metrics).  
+Проверка:
+```bash
+curl -s http://localhost:8000/v2/health/ready
+curl -s http://localhost:8000/v2/models/textcnn
+```
+
+3) Пример HTTP-запроса на инференс:
+```bash
+python - <<'PY'
+import json, requests
+from bpe_tokenizer import BPETokenizer
+
+TEXT = "Great movie!"
+MAX_LEN = 128
+tok = BPETokenizer.load("artifacts/tokenizer.json")
+ids = tok.encode(TEXT)["input_ids"][:MAX_LEN]
+pad = tok.pad_token_id
+ids = ids + [pad]*(MAX_LEN-len(ids))
+
+payload = {
+    "inputs": [{
+        "name": "input_ids",
+        "shape": [1, MAX_LEN],
+        "datatype": "INT64",
+        "data": ids
+    }],
+    "outputs": [{"name": "logits"}],
+}
+resp = requests.post("http://localhost:8000/v2/models/textcnn/infer", json=payload)
+resp.raise_for_status()
+print(resp.json())
+PY
+```
+Ответ содержит логиты; дальше выбираем argmax.
+
+Альтернатива через curl (если ids уже подготовлены и паддированы до `MAX_LEN`):
+```bash
+curl -X POST http://localhost:8000/v2/models/textcnn/infer \
+  -H "Content-Type: application/json" \
+  -d '{
+        "inputs": [{
+            "name": "input_ids",
+            "shape": [1, 128],
+            "datatype": "INT64",
+            "data": [/* сюда подставь массив из 128 токенов */]
+        }],
+        "outputs": [{"name": "logits"}]
+      }'
+```
+`input_ids` нужно получить заранее через `tokenizer.encode(text)` и допаддить до `data.max_length`.
+
+4) (Опционально) добавь `model-repo/textcnn/1/model.onnx` в DVC:
+```bash
+dvc add model-repo/textcnn/1/model.onnx
+dvc push
+```
+
+5) Быстрый клиент для Triton (HTTP)
+
+В репозитории есть скрипт `triton_client.py`, который сам токенизирует текст и шлёт запрос в Triton.
+
+```bash
+uv run python triton_client.py \
+  --text "Great movie!" \
+  --tokenizer-path artifacts/tokenizer.json \
+  --url http://localhost:8000/v2/models/textcnn/infer \
+  --max-length 128
+```
+Он печатает ответ Triton и предсказанный класс. Если Triton работает не на localhost, поменяй `--url`.

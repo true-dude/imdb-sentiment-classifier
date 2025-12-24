@@ -25,6 +25,7 @@ only-include = [
     "infer_cnn.py",
     "export_onnx.py",
     "export_tensorrt.py",
+    "triton_client.py",
     "README.md",
     "requirements.txt",
     "docker-compose.yml",
