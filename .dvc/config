@@ -1,0 +1,9 @@
+[core]
+    no_scm = true
+    remote = minio
+['remote "minio"']
+    url = s3://mlops-data
+    endpointurl = http://127.0.0.1:9000
+    use_ssl = false
+    access_key_id = minio
+    secret_access_key = minio123

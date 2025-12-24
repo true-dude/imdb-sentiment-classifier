@@ -1,0 +1,2 @@
+- mlflow.enabled=true
+- mlflow.mlflow_uri=http://localhost:8080

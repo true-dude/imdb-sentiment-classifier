@@ -1,0 +1,4 @@
+checkpoint_path: checkpoints/textcnn_imdb.pt
+tokenizer_path: artifacts/tokenizer.json
+onnx_path: artifacts/textcnn.onnx
+trt_path: artifacts/textcnn.trt

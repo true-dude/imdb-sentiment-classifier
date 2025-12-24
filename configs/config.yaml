@@ -1,0 +1,10 @@
+defaults:
+  - data: imdb
+  - tokenizer: bpe
+  - model: textcnn
+  - train: default
+  - mlflow: default
+  - paths: default
+  - _self_
+
+text: ""
