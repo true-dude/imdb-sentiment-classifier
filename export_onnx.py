@@ -21,11 +21,10 @@ def main(cfg: DictConfig) -> None:
     try:
         import onnx  # type: ignore
         import onnxruntime as ort  # type: ignore
-        import onnxscript  # type: ignore  # требуется новым экспортером torch.onnx
     except ImportError as exc:  # pragma: no cover - informative path
         raise SystemExit(
-            "Нужны пакеты onnx, onnxruntime и onnxscript. Установи их, например: "
-            "uv pip install onnx onnxruntime onnxscript"
+            "Нужны пакеты onnx и onnxruntime. Установи их, например: "
+            "uv pip install onnx onnxruntime"
         ) from exc
 
     checkpoint_path = Path(to_absolute_path(cfg.paths.checkpoint_path))
@@ -64,7 +63,7 @@ def main(cfg: DictConfig) -> None:
         onnx_path,
         input_names=["input_ids"],
         output_names=["logits"],
-        # Экспортируем со статической длиной (seq_len из конфига), чтобы избежать ошибок dynamo
+        # Статическая длина (seq_len из конфига) во избежание ошибок dynamo
         dynamo=False,
         opset_version=18,
     )

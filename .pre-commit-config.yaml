@@ -1,3 +1,5 @@
+exclude: "^\\.dvc/"
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -31,11 +33,6 @@ repos:
     rev: v4.0.0-alpha.6
     hooks:
       - id: prettier
-        args: ["--log-level=debug"]
-        types_or:
-          - markdown
-          - yaml
-          - json
-          - css
-          - html
+        args: ["--ignore-unknown", "--log-level=warn"]
+        files: "\\.(md|markdown)$"
         exclude: "^uv\\.lock$"

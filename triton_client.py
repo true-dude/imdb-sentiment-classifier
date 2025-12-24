@@ -8,7 +8,9 @@ from bpe_tokenizer import BPETokenizer
 
 
 def prepare_ids(tokenizer: BPETokenizer, text: str, max_length: int) -> List[int]:
-    encoded = tokenizer.encode(text, return_attention_mask=False)["input_ids"][:max_length]
+    encoded = tokenizer.encode(text, return_attention_mask=False)["input_ids"][
+        :max_length
+    ]
     pad_id = tokenizer.pad_token_id
     if len(encoded) < max_length:
         encoded += [pad_id] * (max_length - len(encoded))

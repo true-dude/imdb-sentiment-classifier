@@ -41,7 +41,9 @@ def _prepare_imdb_from_csv(csv_path: Path, out_root: Path) -> None:
 
 
 def download_data(kaggle_csv: Optional[str] = None) -> None:
-    """Ensure data/IMDb exists. Tries DVC first, then local Kaggle CSV if provided/exists."""
+    """
+    Ensure data/IMDb exists. Tries DVC first, then local Kaggle CSV if provided.
+    """
     target = Path("data/IMDb/train/positive.txt")
     if target.exists():
         return
@@ -49,10 +51,8 @@ def download_data(kaggle_csv: Optional[str] = None) -> None:
     # Попытка через DVC API
     try:
         logging.info("Trying to fetch data via DVC (pull)")
-        remote = Path(".").resolve()
         # пробуем dvc pull data/IMDb.dvc (с дефолтным remote или переданным)
         # dvc.api.get отсутствует в новой версии, поэтому используем CLI
-        remote_name = None
         try:
             import os
 
@@ -88,5 +88,6 @@ def download_data(kaggle_csv: Optional[str] = None) -> None:
         return
 
     raise FileNotFoundError(
-        "Данных нет. Либо выполните dvc pull, либо положите Kaggle CSV в data/kaggle_imdb/IMDB Dataset.csv"
+        "Данных нет. Выполните dvc pull или положите Kaggle CSV в "
+        "data/kaggle_imdb/IMDB Dataset.csv"
     )

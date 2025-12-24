@@ -1,5 +1,6 @@
 """
-Конвертирует Kaggle IMDB Dataset (50k reviews) в формат data/IMDb/train|test/{positive,negative}.txt.
+Конвертирует Kaggle IMDB Dataset (50k reviews) в формат
+data/IMDb/train|test/{positive,negative}.txt.
 Ожидается CSV по пути data/kaggle_imdb/IMDB Dataset.csv (review,sentiment).
 """
 

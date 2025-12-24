@@ -34,7 +34,7 @@ def main(cfg: DictConfig) -> None:
         trtexec,
         f"--onnx={onnx_path}",
         f"--saveEngine={trt_path}",
-        f"--minShapes=input_ids:1x8",
+        "--minShapes=input_ids:1x8",
         f"--optShapes=input_ids:1x{cfg.data.max_length}",
         f"--maxShapes=input_ids:4x{cfg.data.max_length}",
         "--fp16",

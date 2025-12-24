@@ -226,3 +226,4 @@ data_1/
 outputs/
 .dvc/
 model-repo/textcnn/1/model.onnx
+.pre-commit-cache/
