@@ -12,24 +12,8 @@ services:
     volumes:
       - ./mlflow:/mlflow
 
-  app:
-    build: .
-    working_dir: /app
-    environment:
-      - MLFLOW_TRACKING_URI=http://mlflow:8080
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minio}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minio123}
-      - DVC_REMOTE=minio
-    depends_on:
-      - mlflow
-      - minio
-    command: tail -f /dev/null
-
   triton:
-    #image: ghcr.io/triton-inference-server/server:23.10-py3
-    #image: nvcr.io/nvidia/tritonserver:25.12-trtllm-python-py3
     image: nvcr.io/nvidia/tritonserver:23.10-py3
-
     platform: linux/amd64
     command: >
       tritonserver
