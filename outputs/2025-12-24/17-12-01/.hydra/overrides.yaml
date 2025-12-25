@@ -1,4 +1,0 @@
-- paths.checkpoint_path=checkpoints/textcnn_imdb.pt
-- paths.tokenizer_path=artifacts/tokenizer.json
-- paths.onnx_path=artifacts/textcnn.onnx
-- data.max_length=128

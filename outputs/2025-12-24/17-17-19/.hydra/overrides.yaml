@@ -1,3 +1,0 @@
-- paths.onnx_path=artifacts/textcnn.onnx
-- paths.trt_path=artifacts/textcnn.trt
-- data.max_length=128
