@@ -6,12 +6,12 @@ import torch
 from hydra.utils import to_absolute_path
 from omegaconf import DictConfig, OmegaConf
 
-from bpe_tokenizer import BPETokenizer
-from CNN import TextCNN
-from data_utils import download_data
+from ..bpe_tokenizer import BPETokenizer
+from ..cnn import TextCNN
+from ..data_utils import download_data
 
 
-@hydra.main(config_path="configs", config_name="config", version_base="1.3")
+@hydra.main(config_path="pkg://configs", config_name="config", version_base="1.3")
 def main(cfg: DictConfig) -> None:
     logging.basicConfig(
         level=logging.INFO,

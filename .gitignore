@@ -224,6 +224,10 @@ node_modules/
 minio/
 data_1/
 outputs/
-.dvc/
+.dvc/cache/
+.dvc/tmp/
 model-repo/textcnn/1/model.onnx
 .pre-commit-cache/
+.tmp/
+.uv-cache/
+remote/

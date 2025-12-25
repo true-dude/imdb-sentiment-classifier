@@ -9,11 +9,12 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import MLFlowLogger
 from torch.utils.data import DataLoader
+from torchmetrics.classification import BinaryAUROC, BinaryF1Score
 
-from bpe_tokenizer import BPETokenizer
-from CNN import TextCNN
-from data_utils import download_data
-from dataset import IMDBDataset
+from ..bpe_tokenizer import BPETokenizer
+from ..cnn import TextCNN
+from ..data_utils import download_data
+from ..dataset import IMDBDataset
 
 
 class TextCNNLitModule(pl.LightningModule):
@@ -22,6 +23,11 @@ class TextCNNLitModule(pl.LightningModule):
         self.model = model
         self.lr = lr
         self.criterion = torch.nn.CrossEntropyLoss()
+        # Метрики на эпоху
+        self.train_f1 = BinaryF1Score()
+        self.val_f1 = BinaryF1Score()
+        self.train_auc = BinaryAUROC()
+        self.val_auc = BinaryAUROC()
 
     def forward(self, x):
         return self.model(x)
@@ -30,7 +36,10 @@ class TextCNNLitModule(pl.LightningModule):
         logits = self(batch["input_ids"])
         loss = self.criterion(logits, batch["labels"])
         preds = torch.argmax(logits, dim=-1)
+        probs_pos = torch.softmax(logits, dim=-1)[:, 1]
         acc = (preds == batch["labels"]).float().mean()
+        self.train_f1.update(preds, batch["labels"])
+        self.train_auc.update(probs_pos, batch["labels"])
         self.log("train_loss", loss, prog_bar=True, on_epoch=True, on_step=False)
         self.log("train_accuracy", acc, prog_bar=True, on_epoch=True, on_step=False)
         return loss
@@ -39,16 +48,31 @@ class TextCNNLitModule(pl.LightningModule):
         logits = self(batch["input_ids"])
         loss = self.criterion(logits, batch["labels"])
         preds = torch.argmax(logits, dim=-1)
+        probs_pos = torch.softmax(logits, dim=-1)[:, 1]
         acc = (preds == batch["labels"]).float().mean()
+        self.val_f1.update(preds, batch["labels"])
+        self.val_auc.update(probs_pos, batch["labels"])
         self.log("val_loss", loss, prog_bar=True, on_epoch=True, on_step=False)
         self.log("val_accuracy", acc, prog_bar=True, on_epoch=True, on_step=False)
         return loss
+
+    def on_train_epoch_end(self):
+        self.log("train_f1", self.train_f1.compute(), prog_bar=True)
+        self.log("train_auc", self.train_auc.compute(), prog_bar=False)
+        self.train_f1.reset()
+        self.train_auc.reset()
+
+    def on_validation_epoch_end(self):
+        self.log("val_f1", self.val_f1.compute(), prog_bar=True)
+        self.log("val_auc", self.val_auc.compute(), prog_bar=False)
+        self.val_f1.reset()
+        self.val_auc.reset()
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
 
-@hydra.main(config_path="configs", config_name="config", version_base="1.3")
+@hydra.main(config_path="pkg://configs", config_name="config", version_base="1.3")
 def main(cfg: DictConfig) -> None:
     logging.basicConfig(
         level=logging.INFO,

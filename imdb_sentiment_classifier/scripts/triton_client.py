@@ -4,7 +4,7 @@ from typing import List
 
 import requests
 
-from bpe_tokenizer import BPETokenizer
+from ..bpe_tokenizer import BPETokenizer
 
 
 def prepare_ids(tokenizer: BPETokenizer, text: str, max_length: int) -> List[int]:
