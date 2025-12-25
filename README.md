@@ -203,3 +203,16 @@ uv run train-cnn
     --url http://localhost:8000/v2/models/textcnn/infer \
     --max-length 128
   ```
+
+## Docker Compose (MLflow / Triton)
+
+- MLflow поднимается командой:
+  ```bash
+  docker compose up -d mlflow
+  ```
+  Используй при запуске обучения с логированием в MLflow (`mlflow.enabled=true mlflow.mlflow_uri=http://localhost:8080`).
+- Triton поднимается командой:
+  ```bash
+  docker compose up triton
+  ```
+  Используй, когда уже есть ONNX в `model-repo/textcnn/1/model.onnx` и нужно обслуживать инференс через Triton (HTTP 8000 / gRPC 8001).
