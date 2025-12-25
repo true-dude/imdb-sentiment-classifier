@@ -1,0 +1,29 @@
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.1
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 8080
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/mlruns
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./mlflow:/mlflow
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:23.10-py3
+    platform: linux/amd64
+    command: >
+      tritonserver
+      --model-repository=/models
+      --disable-auto-complete-config
+      --backend-config=onnxruntime,execution_mode=ORT_SEQUENTIAL
+      --http-port=8000 --grpc-port=8001 --metrics-port=8002
+    volumes:
+      - ./model-repo:/models:ro
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"

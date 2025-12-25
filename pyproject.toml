@@ -1,0 +1,42 @@
+[project]
+name = "imdb-sentiment-classifier"
+version = "0.1.0"
+description = "TextCNN sentiment classifier with BPE tokenizer (PyTorch + Lightning)"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "mlflow>=2.10.0",
+    "pytorch-lightning>=2.3.0",
+    "hydra-core>=1.3.2",
+    "dvc>=3.55.0",
+    "datasets>=2.20.0",
+    "torchmetrics>=1.4.0",
+]
+
+[project.scripts]
+train-cnn = "imdb_sentiment_classifier.scripts.train_cnn:main"
+infer-cnn = "imdb_sentiment_classifier.scripts.infer_cnn:main"
+export-onnx = "imdb_sentiment_classifier.scripts.export_onnx:main"
+export-tensorrt = "imdb_sentiment_classifier.scripts.export_tensorrt:main"
+triton-client = "imdb_sentiment_classifier.scripts.triton_client:main"
+prepare-imdb-kaggle = "imdb_sentiment_classifier.scripts.prepare_imdb_kaggle:main"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.7.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=3.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["imdb_sentiment_classifier"]
+include = [
+    "configs/**",
+]

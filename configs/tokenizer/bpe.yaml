@@ -1,0 +1,2 @@
+vocab_size: 30000
+num_merges: 5000

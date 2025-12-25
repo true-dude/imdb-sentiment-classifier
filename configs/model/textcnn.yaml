@@ -1,0 +1,4 @@
+embedding_dim: 100
+num_filters: 100
+dropout: 0.3
+num_classes: 2

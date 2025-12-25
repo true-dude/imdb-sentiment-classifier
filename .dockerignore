@@ -1,0 +1,15 @@
+.venv
+venv
+env
+__pycache__
+*.pyc
+
+# данные и артефакты
+data
+mlruns
+mlflow.db
+artifacts
+!artifacts/tokenizer.json
+checkpoints
+node_modules
+minio
