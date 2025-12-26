@@ -11,6 +11,7 @@ dependencies = [
     "dvc>=3.55.0",
     "datasets>=2.20.0",
     "torchmetrics>=1.4.0",
+    "fire>=0.6.0",
 ]
 
 [project.scripts]
@@ -18,7 +19,7 @@ train-cnn = "imdb_sentiment_classifier.scripts.train_cnn:main"
 infer-cnn = "imdb_sentiment_classifier.scripts.infer_cnn:main"
 export-onnx = "imdb_sentiment_classifier.scripts.export_onnx:main"
 export-tensorrt = "imdb_sentiment_classifier.scripts.export_tensorrt:main"
-triton-client = "imdb_sentiment_classifier.scripts.triton_client:main"
+triton-client = "imdb_sentiment_classifier.scripts.triton_client:cli"
 prepare-imdb-kaggle = "imdb_sentiment_classifier.scripts.prepare_imdb_kaggle:main"
 
 [project.optional-dependencies]

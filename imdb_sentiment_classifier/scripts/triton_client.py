@@ -1,7 +1,7 @@
-import argparse
 import json
 from typing import List
 
+import fire
 import requests
 
 from ..bpe_tokenizer import BPETokenizer
@@ -17,40 +17,21 @@ def prepare_ids(tokenizer: BPETokenizer, text: str, max_length: int) -> List[int
     return encoded
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Simple Triton HTTP client for TextCNN ONNX model"
-    )
-    parser.add_argument("--text", required=True, help="Текст для инференса")
-    parser.add_argument(
-        "--tokenizer-path",
-        default="artifacts/tokenizer.json",
-        help="Путь к сохранённому BPETokenizer",
-    )
-    parser.add_argument(
-        "--url",
-        default="http://localhost:8000/v2/models/textcnn/infer",
-        help="HTTP endpoint Triton",
-    )
-    parser.add_argument(
-        "--max-length",
-        type=int,
-        default=128,
-        help="Длина, до которой паддятся input_ids",
-    )
-    parser.add_argument(
-        "--timeout", type=float, default=10.0, help="Таймаут HTTP-запроса, секунд"
-    )
-    args = parser.parse_args()
-
-    tokenizer = BPETokenizer.load(args.tokenizer_path)
-    input_ids = prepare_ids(tokenizer, args.text, args.max_length)
+def main(
+    text: str,
+    tokenizer_path: str = "artifacts/tokenizer.json",
+    url: str = "http://localhost:8000/v2/models/textcnn/infer",
+    max_length: int = 128,
+    timeout: float = 10.0,
+) -> None:
+    tokenizer = BPETokenizer.load(tokenizer_path)
+    input_ids = prepare_ids(tokenizer, text, max_length)
 
     payload = {
         "inputs": [
             {
                 "name": "input_ids",
-                "shape": [1, args.max_length],
+                "shape": [1, max_length],
                 "datatype": "INT64",
                 "data": input_ids,
             }
@@ -58,7 +39,7 @@ def main() -> None:
         "outputs": [{"name": "logits"}],
     }
 
-    resp = requests.post(args.url, json=payload, timeout=args.timeout)
+    resp = requests.post(url, json=payload, timeout=timeout)
     resp.raise_for_status()
     data = resp.json()
 
@@ -71,5 +52,9 @@ def main() -> None:
         print(f"Predicted class: {labels.get(pred, pred)}")
 
 
+def cli() -> None:
+    fire.Fire(main)
+
+
 if __name__ == "__main__":
-    main()
+    cli()
