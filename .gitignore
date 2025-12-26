@@ -216,17 +216,16 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-mlflow/
-data/
-checkpoints/
-artifacts/
-node_modules/
-outputs/
-.dvc/cache/
-.dvc/tmp/
-model-repo/textcnn/1/model.onnx
-.pre-commit-cache/
-.tmp/
-.uv-cache/
-remote/
-outputs/
+/mlflow/
+/checkpoints/
+/rtifacts/
+/node_modules/
+/outputs/
+/model-repo/textcnn/1/model.onnx
+/.pre-commit-cache/
+/tmp/
+/uv-cache/
+/remote/
+/outputs/
+/artifacts/
+/.tmp/

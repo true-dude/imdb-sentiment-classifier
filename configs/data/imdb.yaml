@@ -1,0 +1,7 @@
+train:
+  positive_path: data/IMDb/train/positive.txt
+  negative_path: data/IMDb/train/negative.txt
+test:
+  positive_path: data/IMDb/test/positive.txt
+  negative_path: data/IMDb/test/negative.txt
+max_length: 128
