@@ -142,8 +142,14 @@ REST API сервис (FastAPI). Бэкенд будет ходить в сер�
   uv sync --locked
   ```
 - DVC:
-  - Дефолтный remote `myremote` указывает на локальный путь `../remote` (см. `.dvc/config`). Туда (в `data/IMDb`) надо положить датасет с Kaggle .
-  - Чтобы подтянуть данные: `dvc pull data/IMDb.dvc` (или просто запустить `train-cnn`/`infer-cnn` — они вызовут `download_data()`).
+  - Дефолтный remote `dagshub` настроен на `https://dagshub.com/true-dude/imdb-comments-dataset.dvc`. Добавь креды локально (не коммить):
+    ```bash
+    dvc remote modify --local dagshub auth basic
+    dvc remote modify --local dagshub user <user>
+    dvc remote modify --local dagshub password <token>  # DAGsHub Settings -> Access Tokens
+    dvc pull data/IMDb.dvc
+    ```
+    При отсутствии данных `train-cnn`/`infer-cnn` сами вызовут `download_data()` и попробуют `dvc pull`.
   - Альтернатива: поставить Kaggle CSV `data/kaggle_imdb/IMDB Dataset.csv` и собрать: `uv run prepare-imdb-kaggle`.
 - Проверка структуры данных (после pull/подготовки):
   ```
