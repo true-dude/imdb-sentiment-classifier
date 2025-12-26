@@ -132,7 +132,11 @@ def main(cfg: DictConfig) -> None:
             len(train_texts),
             cfg.tokenizer.num_merges,
         )
-        tokenizer.train(train_texts, num_merges=cfg.tokenizer.num_merges)
+        tokenizer.train(
+            train_texts,
+            num_merges=cfg.tokenizer.num_merges,
+            show_progress=True,
+        )
 
     test_pos = Path(to_absolute_path(cfg.data.test.positive_path))
     test_neg = Path(to_absolute_path(cfg.data.test.negative_path))
