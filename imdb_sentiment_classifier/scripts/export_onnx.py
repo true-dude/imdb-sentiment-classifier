@@ -19,9 +19,9 @@ def main(cfg: DictConfig) -> None:
     logging.info("Config (export ONNX):\n%s", OmegaConf.to_yaml(cfg))
 
     try:
-        import onnx  # type: ignore
-        import onnxruntime as ort  # type: ignore
-    except ImportError as exc:  # pragma: no cover - informative path
+        import onnx
+        import onnxruntime as ort
+    except ImportError as exc:
         raise SystemExit(
             "Нужны пакеты onnx и onnxruntime. Установи их, например: "
             "uv pip install onnx onnxruntime"
@@ -63,7 +63,6 @@ def main(cfg: DictConfig) -> None:
         onnx_path,
         input_names=["input_ids"],
         output_names=["logits"],
-        # Статическая длина (seq_len из конфига) во избежание ошибок dynamo
         dynamo=False,
         opset_version=18,
     )

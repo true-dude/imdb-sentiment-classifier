@@ -14,7 +14,6 @@ def _prepare_imdb_from_csv(csv_path: Path, out_root: Path) -> None:
     train_pos.parent.mkdir(parents=True, exist_ok=True)
     test_pos.parent.mkdir(parents=True, exist_ok=True)
 
-    # простое разбиение: первые 80% -> train, остальные -> test (стратифицировано)
     rows = []
     with csv_path.open(encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -48,11 +47,8 @@ def download_data(kaggle_csv: Optional[str] = None) -> None:
     if target.exists():
         return
 
-    # Попытка через DVC API
     try:
         logging.info("Trying to fetch data via DVC (pull)")
-        # пробуем dvc pull data/IMDb.dvc (с дефолтным remote или переданным)
-        # dvc.api.get отсутствует в новой версии, поэтому используем CLI
         try:
             import os
 
@@ -68,7 +64,6 @@ def download_data(kaggle_csv: Optional[str] = None) -> None:
     except Exception as e:
         logging.warning("dvc pull failed: %s", e)
 
-    # Попытка через dvc pull
     dvc_file = Path("data/IMDb.dvc")
     if dvc_file.exists():
         try:
@@ -78,7 +73,6 @@ def download_data(kaggle_csv: Optional[str] = None) -> None:
         except Exception as e:
             logging.warning("dvc pull failed: %s", e)
 
-    # Попытка собрать из Kaggle CSV
     csv_path = (
         Path(kaggle_csv) if kaggle_csv else Path("data/kaggle_imdb/IMDB Dataset.csv")
     )

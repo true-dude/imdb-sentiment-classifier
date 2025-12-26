@@ -23,7 +23,6 @@ class TextCNNLitModule(pl.LightningModule):
         self.model = model
         self.lr = lr
         self.criterion = torch.nn.CrossEntropyLoss()
-        # Метрики на эпоху
         self.train_f1 = BinaryF1Score()
         self.val_f1 = BinaryF1Score()
         self.train_auc = BinaryAUROC()
@@ -57,14 +56,38 @@ class TextCNNLitModule(pl.LightningModule):
         return loss
 
     def on_train_epoch_end(self):
-        self.log("train_f1", self.train_f1.compute(), prog_bar=True)
-        self.log("train_auc", self.train_auc.compute(), prog_bar=False)
+        self.log(
+            "train_f1",
+            self.train_f1.compute(),
+            prog_bar=True,
+            on_step=False,
+            on_epoch=True,
+        )
+        self.log(
+            "train_auc",
+            self.train_auc.compute(),
+            prog_bar=False,
+            on_step=False,
+            on_epoch=True,
+        )
         self.train_f1.reset()
         self.train_auc.reset()
 
     def on_validation_epoch_end(self):
-        self.log("val_f1", self.val_f1.compute(), prog_bar=True)
-        self.log("val_auc", self.val_auc.compute(), prog_bar=False)
+        self.log(
+            "val_f1",
+            self.val_f1.compute(),
+            prog_bar=True,
+            on_step=False,
+            on_epoch=True,
+        )
+        self.log(
+            "val_auc",
+            self.val_auc.compute(),
+            prog_bar=False,
+            on_step=False,
+            on_epoch=True,
+        )
         self.val_f1.reset()
         self.val_auc.reset()
 
@@ -85,10 +108,8 @@ def main(cfg: DictConfig) -> None:
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
     tokenizer_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 0. Гарантируем наличие данных (DVC или Kaggle CSV)
     download_data()
 
-    # 1. Токенайзер
     tokenizer = BPETokenizer(vocab_size=cfg.tokenizer.vocab_size)
     train_texts = []
     train_pos = Path(to_absolute_path(cfg.data.train.positive_path))
@@ -113,7 +134,6 @@ def main(cfg: DictConfig) -> None:
         )
         tokenizer.train(train_texts, num_merges=cfg.tokenizer.num_merges)
 
-    # 2. Датасеты и дата-лоадеры
     test_pos = Path(to_absolute_path(cfg.data.test.positive_path))
     test_neg = Path(to_absolute_path(cfg.data.test.negative_path))
     train_ds = IMDBDataset(
@@ -138,7 +158,6 @@ def main(cfg: DictConfig) -> None:
         cfg.train.batch_size,
     )
 
-    # 3. Модель + LightningModule
     vocab_size = len(tokenizer.idx_to_token)
     model = TextCNN(
         vocab_size=vocab_size,
@@ -156,7 +175,6 @@ def main(cfg: DictConfig) -> None:
         cfg.train.lr,
     )
 
-    # 4. Логгер и чекпоинты
     mlflow_uri = cfg.mlflow.mlflow_uri or None
     logger = None
     if cfg.mlflow.enabled or mlflow_uri:
@@ -180,10 +198,9 @@ def main(cfg: DictConfig) -> None:
         devices=1,
         logger=logger,
         callbacks=[checkpoint_cb],
-        log_every_n_steps=10,
+        log_every_n_steps=1,
     )
 
-    # 5. Обучение
     logging.info("Starting training for %d epochs", cfg.train.epochs)
     trainer.fit(
         lit_module,
@@ -191,7 +208,6 @@ def main(cfg: DictConfig) -> None:
         val_dataloaders=test_loader,
     )
 
-    # 6. Сохранение модели и токенизатора (state_dict)
     torch.save(lit_module.model.state_dict(), checkpoint_path)
     print(f"Модель сохранена в {checkpoint_path}")
     tokenizer.save(str(tokenizer_path))

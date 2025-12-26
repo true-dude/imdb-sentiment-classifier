@@ -22,7 +22,6 @@ def main(cfg: DictConfig) -> None:
     checkpoint_path = Path(to_absolute_path(cfg.paths.checkpoint_path))
     tokenizer_path = Path(to_absolute_path(cfg.paths.tokenizer_path))
 
-    # Обеспечиваем наличие данных (если нужно подтянуть через dvc)
     download_data()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

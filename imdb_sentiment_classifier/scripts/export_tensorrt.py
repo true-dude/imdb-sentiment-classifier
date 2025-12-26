@@ -25,7 +25,7 @@ def main(cfg: DictConfig) -> None:
         )
 
     trtexec = shutil.which("trtexec")
-    if trtexec is None:  # pragma: no cover - depends on env
+    if trtexec is None:
         raise SystemExit(
             "Не найден trtexec. Установи TensorRT и убедись, что trtexec в PATH."
         )

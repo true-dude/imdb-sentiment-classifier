@@ -215,14 +215,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-hw1\__pycache__
+
 mlflow/
 data/
 checkpoints/
 artifacts/
 node_modules/
-minio/
-data_1/
 outputs/
 .dvc/cache/
 .dvc/tmp/
@@ -231,3 +229,4 @@ model-repo/textcnn/1/model.onnx
 .tmp/
 .uv-cache/
 remote/
+outputs/
