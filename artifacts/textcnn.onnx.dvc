@@ -1,0 +1,5 @@
+outs:
+- md5: 5f758f0e720e48140d7a206683146349
+  size: 2587967
+  hash: md5
+  path: textcnn.onnx

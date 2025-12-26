@@ -159,24 +159,25 @@ REST API сервис (FastAPI). Бэкенд будет ходить в сер�
       test/{positive.txt,negative.txt}
   ```
 
+Можно запустить mlflow для визуализации метрик при обучении
+
+```bash
+docker compose up mlflow
+```
+
+Перед обучением, что не ждать обучение BPE-токенайзер, можно стянуть стянить готовый json:
+
+```bash
+dvc pull artifacts/tokenizer.json.dvc
+```
+
 ## Train
 
 Запуск из корня репозитория (нужен доступ к `configs/`):
 
 ```bash
-uv run train-cnn
+uv run train-cnn mlflow.enabled=true mlflow.mlflow_uri=http://localhost:8080`
 ```
-
-Полезные параметры:
-
-- Гиперпарметры: `uv run train-cnn train.epochs=5 train.lr=5e-4 data.max_length=256 tokenizer.num_merges=2000`.
-- MLflow: `uv run train-cnn mlflow.enabled=true mlflow.mlflow_uri=http://localhost:8080`.
-
-Выходы:
-
-- Чекпоинт: `checkpoints/textcnn_imdb.pt`.
-- Токенизатор: `artifacts/tokenizer.json`.
-- Метрики: `loss`, `accuracy`, `f1`, `auc` на train/val. Логи — в консоли; при включённом MLflow — в указанном трекинг-сервере (графики метрик появятся там).
 
 ## Production preparation
 

@@ -26,16 +26,39 @@ class BPETokenizer:
         )
         self.token_to_idx = {token: idx for idx, token in self.idx_to_token.items()}
 
-    def train(self, texts, num_merges):
+    def train(self, texts, num_merges, show_progress: bool = False):
+        progress_step_merges = max(1, num_merges // 100) if show_progress else None
         words = []
-        for text in texts:
+        total_texts = len(texts)
+        for idx, text in enumerate(texts, 1):
             tokens = re.findall(self.pat, text)
             words.extend([list(token) + ["</w>"] for token in tokens])
+            if show_progress and total_texts and idx % max(1, total_texts // 100) == 0:
+                percent = idx / total_texts * 100
+                print(
+                    f"\rPreparing texts: {idx}/{total_texts} ({percent:.1f}%)",
+                    end="",
+                    flush=True,
+                )
+        if show_progress:
+            print()
 
         token_freqs = Counter()
-        for word in words:
+        total_words = len(words)
+        word_step = max(1, total_words // 100) if show_progress else None
+        for idx, word in enumerate(words, 1):
             token_freqs.update([tuple(word)])
-        for _ in range(num_merges):
+            if show_progress and word_step and idx % word_step == 0:
+                percent = idx / total_words * 100
+                print(
+                    f"\rCounting vocab: {idx}/{total_words} ({percent:.1f}%)",
+                    end="",
+                    flush=True,
+                )
+        if show_progress:
+            print()
+            print(f"\rBPE merges: [{'-'*30}] 0/{num_merges} (0.0%)", end="", flush=True)
+        for merge_idx in range(num_merges):
             if len(self.idx_to_token) >= self.vocab_size:
                 break
             pair_counts = defaultdict(int)
@@ -55,6 +78,22 @@ class BPETokenizer:
             self.merges[best_pair] = new_token
 
             token_freqs = self._updating_vocab(best_pair, new_token, token_freqs)
+            if show_progress and (
+                merge_idx == 0
+                or (merge_idx + 1) % progress_step_merges == 0
+                or merge_idx + 1 == num_merges
+            ):
+                percent = (merge_idx + 1) / num_merges * 100
+                bar_len = 30
+                filled = int(bar_len * percent / 100)
+                bar = "#" * filled + "-" * (bar_len - filled)
+                msg = (
+                    f"\rBPE merges: [{bar}] "
+                    f"{merge_idx + 1}/{num_merges} ({percent:.1f}%)"
+                )
+                print(msg, end="", flush=True)
+        if show_progress:
+            print()
 
     def _updating_vocab(self, pair, new_token, token_freqs):
         new_token_freqs = Counter()
