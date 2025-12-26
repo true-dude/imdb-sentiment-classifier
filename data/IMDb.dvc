@@ -1,0 +1,6 @@
+outs:
+- md5: 7f770c6fda3707aeb4998fa8ea31ef6e.dir
+  size: 65533352
+  nfiles: 4
+  hash: md5
+  path: IMDb

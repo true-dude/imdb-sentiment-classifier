@@ -1,13 +1,6 @@
 [core]
-    no_scm = true
-    remote = myremote
-[cache]
-    dir = /Users/ark/Desktop/ark/mipt25/imdb-sentiment-classifier/.dvc/cache
-['remote "minio"']
-    url = s3://mlops-data
-    endpointurl = http://127.0.0.1:9000
-    use_ssl = false
-    access_key_id = minio
-    secret_access_key = minio123
-['remote "myremote"']
-    url = ../remote
+    remote = dagshub
+['remote "gdrive"']
+    url = "gdrive://1QhHqDOnftW3IgTxylh7-srzmqrHuhs8G"
+['remote "dagshub"']
+    url = "https://dagshub.com/true-dude/imdb-comments-dataset.dvc"
