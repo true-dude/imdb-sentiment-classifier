@@ -132,6 +132,11 @@ REST API сервис (FastAPI). Бэкенд будет ходить в сер�
 ## Setup
 
 - Требования: Python ≥3.10, uv, dvc.
+- Клонирование репозитория
+  ```bash
+  git clone git@github.com:true-dude/imdb-sentiment-classifier.git
+  cd imdb-sentiment-classifier
+  ```
 - Установка зависимостей:
   ```bash
   uv sync --locked
